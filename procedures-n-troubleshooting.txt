@@ -1,0 +1,31 @@
+---Headless Install Raspberry Pi OS
+Use Raspberry Pi OS Legacy with Debian Buster
+after installation, connect via SSH
+$sudo raspi-config, and then go to
+"Advanced Options" > "HDMI / Composite" > "Enable Composite"
+$sudo reboot
+
+----Install OpenCV
+sudo apt-get install python3-opencv
+
+----Install Tensorflow
+$ sudo pip3 install https://github.com/lhelontra/tensorflow-on-arm/releases/download/v2.4.0/tensorflow-2.4.0-cp35-none-linux_armv7l.whl
+
+----Install TFLite-Runtime
+context: https://stackoverflow.com/questions/62749168/modulenotfounderror-no-module-named-tflite-runtime
+
+terminal commands:
+echo "deb https://packages.cloud.google.com/apt coral-edgetpu-stable main" | sudo tee /etc/apt/sources.list.d/coral-edgetpu.list
+curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -
+sudo apt-get update
+sudo apt-get install python3-tflite-runtime
+
+----Troubleshooting
+Error: libf77blas.so.3: cannot open shared object file: No such file or directory
+Context https://numpy.org/devdocs/user/troubleshooting-importerror.html
+solution; terminal command:
+sudo apt-get install libatlas-base-dev 
+
+
+
+

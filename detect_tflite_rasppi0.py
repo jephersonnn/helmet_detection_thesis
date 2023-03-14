@@ -3,9 +3,11 @@
 import tensorflow as tf
 import numpy as np
 import cv2
+from tflite_runtime.interpreter import Interpreter
 
-model_path = '//Users/jeph/Dev/Python/Helmet_Detection/Models/good trial_model1.tflite'
-interpreter = tf.lite.Interpreter(model_path=model_path)
+#model_path = '//Users/jeph/Dev/Python/Helmet_Detection/Models/good trial_model1.tflite'
+model_path = '/home/pi/helmet_detection_thesis/Models/good trial_model1.tflite'
+interpreter = Interpreter(model_path=model_path)
 interpreter.allocate_tensors()
 
 input_details = interpreter.get_input_details()
@@ -13,7 +15,7 @@ output_details = interpreter.get_output_details()
 
 print(input_details)
 
-cap = cv2.VideoCapture(1)
+cap = cv2.VideoCapture(0)
 
 # Loop over frames.
 while cap.isOpened():
