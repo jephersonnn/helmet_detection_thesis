@@ -41,14 +41,14 @@ while cap.isOpened():
 
     color = 255, 255, 255  # TODO modify and apply threshold
     if status == "helmet-on":
-        color = 0, 255, 0
+        color = 0, 255, 0 #green
         neutral_time = time.time()  # reset timeout when helmet is on
     else:
-        color = 0, 0, 255
+        color = 0, 0, 255 #red
 
     #If n seconds has elapsed while helmet is off
     if elapsed_time >= helmet_off_timeout:
-        cv2.putText(frame, "Please wear a helmet", (10, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, color, 2)
+        cv2.putText(frame, "Please wear a helmet", (10, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
 
     # Display the frame with the predicted class label.
     cv2.putText(frame, status + " " + str(confidence), (10, 90), cv2.FONT_HERSHEY_SIMPLEX, 1, color, 2)
