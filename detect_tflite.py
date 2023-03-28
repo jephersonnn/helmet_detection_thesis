@@ -6,7 +6,7 @@ import tensorflow as tf
 import numpy as np
 import cv2
 
-model_path = '//Users/jeph/Dev/Python/Helmet_Detection/Models/good trial_model1.tflite'
+model_path = '//Users/jeph/Dev/Python/Helmet_Detection/Models/new model9.tflite'
 #model_path = '//Users/jeph/Dev/Python/Helmet_Detection/Models/good trial_model Mar-10-2023 13_35_47.tflite'
 interpreter = tf.lite.Interpreter(model_path=model_path)
 
@@ -16,11 +16,13 @@ cap = cv2.VideoCapture(1)
 while cap.isOpened():
     # Read a frame from the webcam.
     ret, frame = cap.read()
+    fps = int(cap.get(cv2.CAP_PROP_FPS))
 
     # Preprocess the frame.
-    input_frame = cv2.resize(frame, (180, 180))
+    input_frame = cv2.resize(frame, (161, 241))
     input_data = tf.keras.utils.img_to_array(input_frame)
     input_data = tf.expand_dims(input_data, 0)
+
 
     # Run inference on the TFLite model.
     detect =  interpreter.get_signature_runner('serving_default')
@@ -28,7 +30,7 @@ while cap.isOpened():
     # Postprocess the output.
     class_names = ["helmet-off", "helmet-on"]
     prediction = detect(sequential_1_input=input_data)['outputs']
-    print(prediction)
+    #print(prediction)
     score = tf.nn.softmax(prediction)
     status = class_names[np.argmax(score)]
     confidence = 100 * np.max(score)
@@ -40,6 +42,8 @@ while cap.isOpened():
 
     # Display the frame with the predicted class label.
     cv2.putText(frame, status + " " + str(confidence), (10, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, color, 2)
+    cv2.putText(frame, str(fps) + "fps", (10,90), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 1)
+
     cv2.imshow("Frame", frame)
 
     # Exit if the user presses the "q" key.
