@@ -3,13 +3,13 @@ import tensorflow as tf
 import numpy as np
 import cv2
 
-model_path = '//Users/jeph/Dev/Python/Helmet_Detection/Models/good trial_model Mar-10-2023 13_35_47.tflite'
-file_path = '//Users/jeph/Dev/Python/Helmet_Detection/Test-data/8.jpg'
+model_path = '//Users/jeph/Dev/Python/Helmet_Detection/Models/new model4.tflite'
+file_path = '//Users/jeph/Dev/Python/Helmet_Detection/test/helmet-on-15-000.jpg'
 interpreter = tf.lite.Interpreter(model_path=model_path)
 
 image = cv2.imread(file_path)
 
-input_frame = cv2.resize(image, (180, 180))
+input_frame = cv2.resize(image, (161, 241))
 input_data = tf.keras.utils.img_to_array(input_frame)
 input_data = tf.expand_dims(input_data, 0)
 

@@ -3,6 +3,8 @@
   <component name="NewModuleRootManager">
     <content url="file://$MODULE_DIR$">
       <excludeFolder url="file://$MODULE_DIR$/Models" />
+      <excludeFolder url="file://$MODULE_DIR$/conda" />
+      <excludeFolder url="file://$MODULE_DIR$/test" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />

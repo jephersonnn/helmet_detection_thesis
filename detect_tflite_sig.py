@@ -26,7 +26,7 @@ while cap.isOpened():
     input_data = tf.expand_dims(input_data, 0)
 
     # Run inference on the TFLite model.
-    detect =  Interpreter.get_signature_runner('serving_default')
+    detect =  interpreter.get_signature_runner('serving_default')
 
     # Postprocess the output.
     class_names = ["helmet-off", "helmet-on"]
