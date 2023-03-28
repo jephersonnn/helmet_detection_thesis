@@ -1,18 +1,19 @@
 # Detect using TFLite Model
 # Modified with appropriate prediction algorithm
 # Load Model
-# TODO: Make sure to copy to detect.py
+# To be deployed on raspberry pi
+
 import tensorflow as tf
 import numpy as np
 import cv2
 import time
+from tensorflow.keras.preprocessing.image import img_to_array
+from tflite_runtime.interpreter import Interpreter
 
+model_path = '/home/pi/helmet_detection_thesis/Models/new model9.tflite'
+interpreter = Interpreter(model_path=model_path)
 
-model_path = '//Users/jeph/Dev/Python/Helmet_Detection/Models/new model9.tflite'
-# model_path = '//Users/jeph/Dev/Python/Helmet_Detection/Models/good trial_model Mar-10-2023 13_35_47.tflite'
-interpreter = tf.lite.Interpreter(model_path=model_path)
-
-cap = cv2.VideoCapture(1)
+cap = cv2.VideoCapture(0)
 neutral_time = time.time()
 helmet_off_timeout = 5
 
@@ -25,7 +26,7 @@ while cap.isOpened():
 
     # Preprocess the frame.
     input_frame = cv2.resize(frame, (161, 241))
-    input_data = tf.keras.utils.img_to_array(input_frame)
+    input_data = img_to_array(input_frame)
     input_data = tf.expand_dims(input_data, 0)
 
     # Run inference on the TFLite model.
@@ -47,11 +48,11 @@ while cap.isOpened():
 
     #If n seconds has elapsed while helmet is off
     if elapsed_time >= helmet_off_timeout:
-        cv2.putText(frame, "Please wear a helmet", (10, 90), cv2.FONT_HERSHEY_SIMPLEX, 1, color, 2)
+        cv2.putText(frame, "Please wear a helmet", (10, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, color, 2)
 
     # Display the frame with the predicted class label.
-    cv2.putText(frame, status + " " + str(confidence), (10, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, color, 2)
-    cv2.putText(frame, str(fps) + "fps", (700, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 1)
+    cv2.putText(frame, status + " " + str(confidence), (10, 90), cv2.FONT_HERSHEY_SIMPLEX, 1, color, 2)
+    cv2.putText(frame, str(fps) + "fps", (10, 140), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 1)
 
     cv2.imshow("Frame", frame)
 
