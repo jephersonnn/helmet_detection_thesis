@@ -4,8 +4,9 @@
 # To be deployed on raspberry pi
 
 from buzzer_module import start_up, bz_warn, bz_off, goodbye
-
 start_up()
+
+
 
 import tensorflow as tf
 import numpy as np
@@ -81,9 +82,9 @@ while cap.isOpened():
 
     cv2.imshow("Frame", frame)
 
-    print(warning_trigger)
-    print(bz_warn_trigger)
-    print(bz_triggered)
+    # print(warning_trigger)
+    # print(bz_warn_trigger)
+    # print(bz_triggered)
 
     # Exit if the user presses the "q" key.
     if cv2.waitKey(1) & 0xFF == ord('q'):

@@ -8,7 +8,7 @@ import cv2
 import time
 
 
-model_path = '//Users/jeph/Dev/Python/Helmet_Detection/Models/new model9.tflite'
+model_path = '//Users/jeph/Dev/Python/Helmet_Detection/Models/model4-3.tflite'
 # model_path = '//Users/jeph/Dev/Python/Helmet_Detection/Models/good trial_model Mar-10-2023 13_35_47.tflite'
 interpreter = tf.lite.Interpreter(model_path=model_path)
 
@@ -24,6 +24,8 @@ while cap.isOpened():
     fps = int(cap.get(cv2.CAP_PROP_FPS))
 
     # Preprocess the frame.
+
+    #frame = cv2.convertScaleAbs(frame, alpha=(np.random.rand()), beta=(np.random.rand()))
     input_frame = cv2.resize(frame, (161, 241))
     input_data = tf.keras.utils.img_to_array(input_frame)
     input_data = tf.expand_dims(input_data, 0)
