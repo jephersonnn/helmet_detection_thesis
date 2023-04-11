@@ -54,10 +54,11 @@ while cap.isOpened():
     status = class_names[np.argmax(score)]
     confidence = 100 * np.max(score)
 
-    color = 255, 255, 255  # TODO modify and apply threshold
+    # color = 255, 255, 255  # TODO modify and apply threshold
     if status == "helmet-on":
         color = 0, 255, 0  # green
         elapsed_time_hOn = time.time() - neutral_time_hOn
+        neutral_time_hOff = time.time()
 
         if elapsed_time_hOn > helmet_on_timeout:
             neutral_time_hOff = time.time()  # reset timeout when helmet is on
@@ -69,6 +70,7 @@ while cap.isOpened():
 
     else:
         neutral_time_hOn = time.time()
+        color = 0, 0, 255
         warning_trigger = True
 
     # If n seconds has elapsed while helmet is off
@@ -79,7 +81,6 @@ while cap.isOpened():
     if bz_warn_trigger == True and warning_trigger == True and bz_triggered == False:
         bz_warn()
         warn_message = "Please wear your helmet"
-        color = 0, 0, 255
         warning_trigger = False
         bz_warn_trigger = False
         bz_triggered = True

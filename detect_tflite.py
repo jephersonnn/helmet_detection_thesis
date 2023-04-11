@@ -13,7 +13,7 @@ model_path = '//Users/jeph/Dev/Python/Helmet_Detection/Models/model4-3.tflite'
 interpreter = tf.lite.Interpreter(model_path=model_path)
 
 cap = cv2.VideoCapture(1)
-helmet_off_timeout = 3
+helmet_off_timeout = 2
 helmet_on_timeout = 3
 neutral_time_hOff = time.time()
 neutral_time_hOn = time.time()
@@ -51,6 +51,7 @@ while cap.isOpened():
     if status == "helmet-on":
         color = 0, 255, 0  # green
         elapsed_time_hOn = time.time() - neutral_time_hOn
+        neutral_time_hOff = time.time()
 
         if elapsed_time_hOn > helmet_on_timeout:
             neutral_time_hOff = time.time()  # reset timeout when helmet is on
@@ -60,8 +61,9 @@ while cap.isOpened():
             warn_message = "Helmet detected"
 
     else:
-        neutral_time_hOn = time.time()
         warning_trigger = True
+        color = 0, 0, 255
+        neutral_time_hOn = time.time()
 
     # If n seconds has elapsed while helmet is off
     if elapsed_time_hOff >= helmet_off_timeout and warning_trigger == True and bz_warn_trigger == False and bz_triggered == False:
@@ -71,7 +73,7 @@ while cap.isOpened():
     # this is to make sure that bz_warn does not run repeatedly.
     if bz_warn_trigger == True and warning_trigger == True and bz_triggered == False:
         warn_message = "Please wear your helmet"
-        color = 0, 0, 255
+        neutral_time_hOn = time.time()
         warning_trigger = False
         bz_warn_trigger = False
         bz_triggered = True
