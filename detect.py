@@ -20,16 +20,21 @@ model_path = '/home/pi/helmet_detection_thesis/Models/new model9.tflite'
 interpreter = Interpreter(model_path=model_path)
 
 cap = cv2.VideoCapture(0)
-neutral_time = time.time()
-helmet_off_timeout = 5
+helmet_off_timeout = 3
+helmet_on_timeout = 5
+neutral_time_hOff = time.time()
+neutral_time_hOn = time.time()
+elapsed_time_hOn = time.time()
 warning_trigger = False
 bz_warn_trigger = False
 bz_triggered = False
 warn_message = " "
+color = 255, 255, 255
+
 
 # Loop over frames.
 while cap.isOpened():
-    elapsed_time = time.time() - neutral_time
+    elapsed_time_hOff = time.time() - neutral_time_hOff
     # Read a frame from the webcam.
     ret, frame = cap.read()
     fps = int(cap.get(cv2.CAP_PROP_FPS))
@@ -52,25 +57,29 @@ while cap.isOpened():
     color = 255, 255, 255  # TODO modify and apply threshold
     if status == "helmet-on":
         color = 0, 255, 0  # green
-        neutral_time = time.time()  # reset timeout when helmet is on
-        warning_trigger = False
-        bz_warn_trigger = False
-        bz_triggered = False
-        warn_message = " "
-        bz_off()
+        elapsed_time_hOn = time.time() - neutral_time_hOn
+
+        if elapsed_time_hOn > helmet_on_timeout:
+            neutral_time_hOff = time.time()  # reset timeout when helmet is on
+            warning_trigger = False
+            bz_warn_trigger = False
+            bz_triggered = False
+            warn_message = "Helmet detected"
+            bz_off()
 
     else:
-        color = 0, 0, 255  # red
+        neutral_time_hOn = time.time()
         warning_trigger = True
 
     # If n seconds has elapsed while helmet is off
-    if elapsed_time >= helmet_off_timeout and warning_trigger == True and bz_warn_trigger == False and bz_triggered == False:
+    if elapsed_time_hOff >= helmet_off_timeout and warning_trigger == True and bz_warn_trigger == False and bz_triggered == False:
         bz_warn_trigger = True
 
     # this is to make sure that bz_warn does not run repeatedly.
     if bz_warn_trigger == True and warning_trigger == True and bz_triggered == False:
         bz_warn()
         warn_message = "Please wear your helmet"
+        color = 0, 0, 255
         warning_trigger = False
         bz_warn_trigger = False
         bz_triggered = True
@@ -85,6 +94,8 @@ while cap.isOpened():
     # print(warning_trigger)
     # print(bz_warn_trigger)
     # print(bz_triggered)
+    # print("helmet on time: " + str(elapsed_time_hOn))
+    # print("helmet off time: " + str(elapsed_time_hOff))
 
     # Exit if the user presses the "q" key.
     if cv2.waitKey(1) & 0xFF == ord('q'):
