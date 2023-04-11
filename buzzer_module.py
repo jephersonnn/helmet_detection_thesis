@@ -1,9 +1,9 @@
 from gpiozero import Buzzer
 from time import sleep
 
-buzzer = Buzzer(17)
+buzzer = Buzzer(23)
 
-def start_up():
+def double_beep():
     buzzer.on()
     sleep(0.05)
     buzzer.off()

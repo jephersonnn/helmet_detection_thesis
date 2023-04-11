@@ -3,10 +3,11 @@
 # Load Model
 # To be deployed on raspberry pi
 
-from buzzer_module import start_up, bz_warn, bz_off, goodbye
-start_up()
+from buzzer_module import double_beep, bz_warn, bz_off, goodbye
+from led_module import h_off, h_on, h_neutral, led_start, goodbye_led
 
-
+double_beep()
+led_start()
 
 import tensorflow as tf
 import numpy as np
@@ -16,22 +17,23 @@ from time import sleep
 from tensorflow.keras.preprocessing.image import img_to_array
 from tflite_runtime.interpreter import Interpreter
 
-model_path = '/home/pi/helmet_detection_thesis/Models/new model9.tflite'
+model_path = '/home/pi/helmet_detection_thesis/Models/model4-3.tflite'
 interpreter = Interpreter(model_path=model_path)
 
 cap = cv2.VideoCapture(0)
-helmet_off_timeout = 3
-helmet_on_timeout = 5
+helmet_off_timeout = 2
+helmet_on_timeout = 3
 neutral_time_hOff = time.time()
 neutral_time_hOn = time.time()
 elapsed_time_hOn = time.time()
+helmetIsOn = False
 warning_trigger = False
 bz_warn_trigger = False
 bz_triggered = False
 warn_message = " "
 color = 255, 255, 255
 
-
+h_neutral()
 # Loop over frames.
 while cap.isOpened():
     elapsed_time_hOff = time.time() - neutral_time_hOff
@@ -60,18 +62,24 @@ while cap.isOpened():
         elapsed_time_hOn = time.time() - neutral_time_hOn
         neutral_time_hOff = time.time()
 
-        if elapsed_time_hOn > helmet_on_timeout:
+        if elapsed_time_hOn > helmet_on_timeout:  # if device has detected the helmet has been on for n seconds
             neutral_time_hOff = time.time()  # reset timeout when helmet is on
             warning_trigger = False
             bz_warn_trigger = False
             bz_triggered = False
+            helmetIsOn = True
             warn_message = "Helmet detected"
             bz_off()
+            h_on()
 
     else:
         neutral_time_hOn = time.time()
         color = 0, 0, 255
         warning_trigger = True
+
+        if helmetIsOn:
+            h_neutral()
+            helmetIsOn = False
 
     # If n seconds has elapsed while helmet is off
     if elapsed_time_hOff >= helmet_off_timeout and warning_trigger == True and bz_warn_trigger == False and bz_triggered == False:
@@ -80,10 +88,12 @@ while cap.isOpened():
     # this is to make sure that bz_warn does not run repeatedly.
     if bz_warn_trigger == True and warning_trigger == True and bz_triggered == False:
         bz_warn()
+        h_off()
         warn_message = "Please wear your helmet"
         warning_trigger = False
         bz_warn_trigger = False
         bz_triggered = True
+        h_off()
 
     # Display the frame with the predicted class label.
     cv2.putText(frame, warn_message, (10, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
@@ -101,6 +111,7 @@ while cap.isOpened():
     # Exit if the user presses the "q" key.
     if cv2.waitKey(1) & 0xFF == ord('q'):
         goodbye()
+        goodbye_led()
         break
 
 # Release the webcam and close all windows.
@@ -108,4 +119,5 @@ while cap.isOpened():
 
 cap.release()
 cv2.destroyAllWindows()
+
 
