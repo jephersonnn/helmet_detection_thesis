@@ -17,6 +17,9 @@ from time import sleep
 from tensorflow.keras.preprocessing.image import img_to_array
 from tflite_runtime.interpreter import Interpreter
 
+face_detector_alt=cv2.CascadeClassifier("haar/haarcascade_frontalface_alt_tree.xml")
+face_detector_def=cv2.CascadeClassifier("haar/haarcascade_frontalface_default.xml")
+eye_detector=cv2.CascadeClassifier("haar/haarcascade_eye.xml")
 model_path = '/home/pi/helmet_detection_thesis/Models/model4-3.tflite'
 interpreter = Interpreter(model_path=model_path)
 
@@ -49,6 +52,17 @@ while cap.isOpened():
     # Run inference on the TFLite model.
     detect = interpreter.get_signature_runner('serving_default')
 
+    # Run Face Detection
+    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+    results_def = face_detector_def.detectMultiScale(gray, 1.3, 5)
+    results_alt = face_detector_alt.detectMultiScale(gray, 1.3, 5)
+    results_eye = eye_detector.detectMultiScale(gray, 1.3, 5)
+    try:
+        if not results_def and not results_alt:
+            print("No face")
+    except:
+        print("Face detected")
+
     # Postprocess the output.
     class_names = ["helmet-off", "helmet-on"]
     prediction = detect(sequential_1_input=input_data)['outputs']
@@ -58,24 +72,37 @@ while cap.isOpened():
 
     # color = 255, 255, 255  # TODO modify and apply threshold
     if status == "helmet-on":
-        color = 0, 255, 0  # green
-        elapsed_time_hOn = time.time() - neutral_time_hOn
-        neutral_time_hOff = time.time()
+        try:
+            # not checks if naay sulod ang results
+            # so if walay sulod ang results_def and results_alt, meaning walay nawong
+            if not results_def and not results_alt:
+                color = 0, 255, 0  # green
+                elapsed_time_hOn = time.time() - neutral_time_hOn
+                neutral_time_hOff = time.time()
 
-        if elapsed_time_hOn > helmet_on_timeout:  # if device has detected the helmet has been on for n seconds
-            neutral_time_hOff = time.time()  # reset timeout when helmet is on
-            warning_trigger = False
-            bz_warn_trigger = False
-            bz_triggered = False
-            helmetIsOn = True
-            warn_message = "Helmet detected"
-            bz_off()
-            h_on()
+                if elapsed_time_hOn > helmet_on_timeout:
+                    neutral_time_hOff = time.time()  # reset timeout when helmet is on
+                    warning_trigger = False
+                    bz_warn_trigger = False
+                    bz_triggered = False
+                    warn_message = "Helmet detected"
+                    bz_off()
+                    h_on()
+
+        except:  # False positive, if helmet-on pero naay nawong
+            warn_message = "False Positive"
+            warning_trigger = True
+            color = 0, 0, 255
+            neutral_time_hOn = time.time()
+
+            if helmetIsOn:
+                h_neutral()
+                helmetIsOn = False
 
     else:
-        neutral_time_hOn = time.time()
-        color = 0, 0, 255
         warning_trigger = True
+        color = 0, 0, 255
+        neutral_time_hOn = time.time()
 
         if helmetIsOn:
             h_neutral()
@@ -94,6 +121,14 @@ while cap.isOpened():
         bz_warn_trigger = False
         bz_triggered = True
         h_off()
+
+    #Draw bounding boxes
+    for (x, y, w, h) in results_def:
+        cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
+    for (x, y, w, h) in results_alt:
+        cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
+    for (x, y, w, h) in results_eye:
+        cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
 
     # Display the frame with the predicted class label.
     cv2.putText(frame, warn_message, (10, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)

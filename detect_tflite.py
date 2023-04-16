@@ -9,6 +9,7 @@ import time
 
 face_detector_alt=cv2.CascadeClassifier("haar/haarcascade_frontalface_alt_tree.xml")
 face_detector_def=cv2.CascadeClassifier("haar/haarcascade_frontalface_default.xml")
+eye_detector=cv2.CascadeClassifier("haar/haarcascade_eye.xml")
 model_path = '//Users/jeph/Dev/Python/Helmet_Detection/Models/model4-3.tflite'
 # model_path = '//Users/jeph/Dev/Python/Helmet_Detection/Models/good trial_model Mar-10-2023 13_35_47.tflite'
 interpreter = tf.lite.Interpreter(model_path=model_path)
@@ -46,7 +47,7 @@ while cap.isOpened():
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
     results_def = face_detector_def.detectMultiScale(gray, 1.3, 5)
     results_alt = face_detector_alt.detectMultiScale(gray, 1.3, 5)
-
+    results_eye = eye_detector.detectMultiScale(gray, 1.3, 5)
     try:
         if not results_def and not results_alt:
             print("No face")
@@ -62,6 +63,8 @@ while cap.isOpened():
 
     if status == "helmet-on":
         try:
+            #not checks if naay sulod ang results
+            #so if walay sulod ang results_def and results_alt, meaning walay nawong
             if not results_def and not results_alt:
                 color = 0, 255, 0  # green
                 elapsed_time_hOn = time.time() - neutral_time_hOn
@@ -73,10 +76,28 @@ while cap.isOpened():
                     bz_warn_trigger = False
                     bz_triggered = False
                     warn_message = "Helmet detected"
-        except:
+                    # bz_off()
+                    # h_on()
+
+        except: #False positive, if helmet-on pero naay nawong
+            warn_message = "False Positive"
             warning_trigger = True
             color = 0, 0, 255
             neutral_time_hOn = time.time()
+
+            # if helmetIsOn:
+            #     h_neutral()
+            #     helmetIsOn = False
+
+    else:
+        warning_trigger = True
+        color = 0, 0, 255
+        neutral_time_hOn = time.time()
+
+        # if helmetIsOn:
+        #     h_neutral()
+        #     helmetIsOn = False
+
 
 
     # else:
@@ -98,6 +119,8 @@ while cap.isOpened():
     for (x, y, w, h) in results_def:
         cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
     for (x, y, w, h) in results_alt:
+        cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
+    for (x, y, w, h) in results_eye:
         cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
     # Display the frame with the predicted class label.
     cv2.putText(frame, warn_message, (10, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
