@@ -1,22 +1,29 @@
 import cv2
 import pathlib
-import seaborn
 
-cascade = cv2.CascadeClassifier('../haar/haarcascade_frontalface_default.xml')
+cascade = cv2.CascadeClassifier('../haar/cascade7 s400n5.xml')
 
-helmet_on_directory = "../Test-data"
-helmet_off_directory = ''
+#parameters
+scale =  1.3
+neighbors = 150
+sample_size = (36, 24)
+
+helmet_on_directory = "../test/helmet-on"
+helmet_off_directory = "../test/helmet-off"
+
+print("Evaluating...")
 
 def run_eval(helmet_dir):
     true_count = 0
     false_count = 0
     helmet_dir = pathlib.Path(helmet_dir)
     helmet_data = helmet_dir.glob('*.jpg')
+    print(len(list(helmet_data)))
 
     for hOn in helmet_data:
         img = cv2.imread(str(hOn))
         gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-        helmet_result = cascade.detectMultiScale(gray, 1.35, 3)
+        helmet_result = cascade.detectMultiScale(gray, scaleFactor=scale, minNeighbors=neighbors, minSize=sample_size)
 
         try:
             if not helmet_result:
@@ -33,7 +40,8 @@ def run_eval(helmet_dir):
 
 hOn_true, hOn_false = run_eval(helmet_on_directory)
 hOff_true, hOff_false = run_eval(helmet_off_directory)
-print(str(hOn_true) + " " + str(hOn_false))
+print("Helmet-On T F:  " + str(hOn_true) + " " + str(hOn_false))
+print("Helmet-Off T F: " + str(hOff_true) + " " + str(hOff_false))
 
 tp = hOn_true
 tn = hOff_false
@@ -44,9 +52,13 @@ precision = tp / (tp + fp)
 recall = tp / (tp + fn)
 f1_score = 2 * (precision * recall) / (precision + recall)
 
+print("\nParameters: S:" + str(scale) + " N:" + str(neighbors))
 print('Precision:', precision)
 print('Recall:', recall)
 print('F1-score:', f1_score)
+
+print("Evaluation complete")
+
 
 
 
