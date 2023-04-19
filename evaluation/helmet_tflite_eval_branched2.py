@@ -1,23 +1,25 @@
 import cv2
+import os
 import pathlib
 import tensorflow as tf
 import numpy as np
 
-
-model_path = '//Users/jeph/Dev/Python/Helmet_Detection/Models/model7-3.tflite'
+model_path = '//Users/jeph/Dev/Python/Helmet_Detection/Models/model8-2.tflite'
 interpreter = tf.lite.Interpreter(model_path=model_path)
 
-helmet_data_directory = "/Users/jeph/Downloads/Documents/helmet-data/helmet_data_main"
+#helmet_data_directory = "/Users/jeph/Downloads/Documents/helmet-data/helmet_data_main"
+helmet_data_directory = "/Users/jeph/Dev/Python/Helmet_Detection/test"
 helmet_on_directory = helmet_data_directory + "/helmet-on/"
 helmet_off_directory = helmet_data_directory + "/helmet-off/"
 print(helmet_off_directory)
 
 print("Evaluating...")
 
+
 def run_eval(helmet_dir):
     true_count = 0
     false_count = 0
-    evaluated=0
+    evaluated = 0
     helmet_dir = pathlib.Path(helmet_dir)
     helmet_data = helmet_dir.glob('*.jpg')
 
@@ -29,20 +31,24 @@ def run_eval(helmet_dir):
         # Run inference on the TFLite model.
         detect = interpreter.get_signature_runner('serving_default')
 
-        class_names = ["helmet-off", "helmet-on"]
+        class_names = ['helmet-off-blue', 'helmet-off-cloudy', 'helmet-off-holding', 'helmet-off-indoor',
+                       'helmet-off-noFace', 'helmet-off-tree', 'helmet-off-white', 'helmet-on-blue', 'helmet-on-cloudy',
+                       'helmet-on-indoor', 'helmet-on-running', 'helmet-on-tree', 'helmet-on-white']
         prediction = detect(sequential_input=input_data)['outputs']
         score = tf.nn.softmax(prediction)
         status = class_names[np.argmax(score)]
         confidence = 100 * np.max(score)
 
-        if status == "helmet-on":
+        if status[0:10] != "helmet-off":
             true_count += 1
 
         else:
             false_count += 1
 
         evaluated += 1
-        print("Evaluated " + str(evaluated) + " images for " + str(helmet_dir) )
+        print(status + " " + str(confidence))
+        print("Evaluated " + str(evaluated) + " images for " + str(helmet_dir))
+        os.system('clear')
     return true_count, false_count
 
 
@@ -62,14 +68,9 @@ precision = tp / (tp + fp)
 recall = tp / (tp + fn)
 f1_score = 2 * (precision * recall) / (precision + recall)
 
-print('Accuracy:', accuracy)
-print('Precision:', precision)
-print('Recall:', recall)
-print('F1-score:', f1_score)
+print('Accuracy:', accuracy * 100)
+print('Precision:', precision * 100)
+print('Recall:', recall * 100)
+print('F1-score:', f1_score * 100)
 
 print("Evaluation complete for model " + model_path)
-
-
-
-
-

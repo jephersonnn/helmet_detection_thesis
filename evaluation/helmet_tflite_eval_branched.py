@@ -1,13 +1,15 @@
 import cv2
+import os
 import pathlib
 import tensorflow as tf
 import numpy as np
 
 
-model_path = '//Users/jeph/Dev/Python/Helmet_Detection/Models/model7-3.tflite'
+model_path = '//Users/jeph/Dev/Python/Helmet_Detection/Models/model8-1.tflite'
 interpreter = tf.lite.Interpreter(model_path=model_path)
 
-helmet_data_directory = "/Users/jeph/Downloads/Documents/helmet-data/helmet_data_main"
+#helmet_data_directory = "/Users/jeph/Downloads/Documents/helmet-data/helmet_data_main"
+helmet_data_directory = "/Users/jeph/Dev/Python/Helmet_Detection/test"
 helmet_on_directory = helmet_data_directory + "/helmet-on/"
 helmet_off_directory = helmet_data_directory + "/helmet-off/"
 print(helmet_off_directory)
@@ -29,20 +31,23 @@ def run_eval(helmet_dir):
         # Run inference on the TFLite model.
         detect = interpreter.get_signature_runner('serving_default')
 
-        class_names = ["helmet-off", "helmet-on"]
-        prediction = detect(sequential_input=input_data)['outputs']
+        class_names = ['helmet-off', 'helmet-on-blue', 'helmet-on-cloudy', 'helmet-on-indoor', 'helmet-on-running', 'helmet-on-tree', 'helmet-on-white']
+        prediction = detect(sequential_2_input=input_data)['outputs']
         score = tf.nn.softmax(prediction)
         status = class_names[np.argmax(score)]
         confidence = 100 * np.max(score)
 
-        if status == "helmet-on":
+
+        if status != "helmet-off":
             true_count += 1
 
         else:
             false_count += 1
 
         evaluated += 1
-        print("Evaluated " + str(evaluated) + " images for " + str(helmet_dir) )
+        print(status + " " + str(confidence))
+        print("Evaluated " + str(evaluated) + " images for " + str(helmet_dir))
+        os.system('clear')
     return true_count, false_count
 
 

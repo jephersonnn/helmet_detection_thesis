@@ -10,7 +10,7 @@ import time
 face_detector_alt=cv2.CascadeClassifier("haar/haarcascade_frontalface_alt_tree.xml")
 face_detector_def=cv2.CascadeClassifier("haar/haarcascade_frontalface_default.xml")
 eye_detector=cv2.CascadeClassifier("haar/haarcascade_eye.xml")
-model_path = '//Users/jeph/Dev/Python/Helmet_Detection/Models/model6-1.tflite'
+model_path = '//Users/jeph/Dev/Python/Helmet_Detection/Models/model8-2.tflite'
 # model_path = '//Users/jeph/Dev/Python/Helmet_Detection/Models/good trial_model Mar-10-2023 13_35_47.tflite'
 interpreter = tf.lite.Interpreter(model_path=model_path)
 
@@ -55,13 +55,15 @@ while cap.isOpened():
         print("Face detected")
 
     # Postprocess the output.
-    class_names = ["helmet-off", "helmet-on"]
+    class_names = ['helmet-off-blue', 'helmet-off-cloudy', 'helmet-off-holding', 'helmet-off-indoor',
+                   'helmet-off-noFace', 'helmet-off-tree', 'helmet-off-white', 'helmet-on-blue', 'helmet-on-cloudy',
+                   'helmet-on-indoor', 'helmet-on-running', 'helmet-on-tree', 'helmet-on-white']
     prediction = detect(sequential_1_input=input_data)['outputs']
     score = tf.nn.softmax(prediction)
     status = class_names[np.argmax(score)]
     confidence = 100 * np.max(score)
 
-    if status == "helmet-on":
+    if status[0:10] != "helmet-off":
         try:
             #not checks if naay sulod ang results
             #so if walay sulod ang results_def and results_alt, meaning walay nawong
