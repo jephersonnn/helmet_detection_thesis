@@ -10,7 +10,7 @@ import time
 face_detector_alt=cv2.CascadeClassifier("haar/haarcascade_frontalface_alt_tree.xml")
 face_detector_def=cv2.CascadeClassifier("haar/haarcascade_frontalface_default.xml")
 eye_detector=cv2.CascadeClassifier("haar/haarcascade_eye.xml")
-model_path = '//Users/jeph/Dev/Python/Helmet_Detection/Models/model8-2.tflite'
+model_path = '//Users/jeph/Dev/Python/Helmet_Detection/Models/model.tflite'
 # model_path = '//Users/jeph/Dev/Python/Helmet_Detection/Models/good trial_model Mar-10-2023 13_35_47.tflite'
 interpreter = tf.lite.Interpreter(model_path=model_path)
 
@@ -36,7 +36,10 @@ while cap.isOpened():
     # Preprocess the frame.
 
     #frame = cv2.convertScaleAbs(frame, alpha=(np.random.rand()), beta=(np.random.rand()))
-    input_frame = cv2.resize(frame, (161, 241))
+
+    input_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+    input_frame = cv2.cvtColor(input_frame, cv2.COLOR_GRAY2RGB)
+    input_frame = cv2.resize(input_frame, (161, 241))
     input_data = tf.keras.utils.img_to_array(input_frame)
     input_data = tf.expand_dims(input_data, 0)
 
@@ -44,10 +47,9 @@ while cap.isOpened():
     detect = interpreter.get_signature_runner('serving_default')
 
     #Run Face Detection
-    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-    results_def = face_detector_def.detectMultiScale(gray, 1.3, 5)
-    results_alt = face_detector_alt.detectMultiScale(gray, 1.3, 5)
-    results_eye = eye_detector.detectMultiScale(gray, 1.3, 5)
+    results_def = face_detector_def.detectMultiScale(input_frame, 1.3, 5)
+    results_alt = face_detector_alt.detectMultiScale(input_frame, 1.3, 5)
+    results_eye = eye_detector.detectMultiScale(input_frame, 1.3, 5)
     try:
         if not results_def and not results_alt:
             print("No face")
@@ -55,15 +57,13 @@ while cap.isOpened():
         print("Face detected")
 
     # Postprocess the output.
-    class_names = ['helmet-off-blue', 'helmet-off-cloudy', 'helmet-off-holding', 'helmet-off-indoor',
-                   'helmet-off-noFace', 'helmet-off-tree', 'helmet-off-white', 'helmet-on-blue', 'helmet-on-cloudy',
-                   'helmet-on-indoor', 'helmet-on-running', 'helmet-on-tree', 'helmet-on-white']
-    prediction = detect(sequential_1_input=input_data)['outputs']
+    class_names = ["helmet-off", "helmet-on"]
+    prediction = detect(sequential_input=input_data)['outputs']
     score = tf.nn.softmax(prediction)
     status = class_names[np.argmax(score)]
     confidence = 100 * np.max(score)
 
-    if status[0:10] != "helmet-off":
+    if status == "helmet-on":
         try:
             #not checks if naay sulod ang results
             #so if walay sulod ang results_def and results_alt, meaning walay nawong

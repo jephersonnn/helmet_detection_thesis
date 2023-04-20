@@ -1,7 +1,7 @@
 # Detect using TFLite Model
 # Modified with appropriate prediction algorithm
 # Load Model
-# TODO: Make sure to copy to detect.py
+# TODO: Make sure to copy to detect_notimeout.py
 import tensorflow as tf
 import numpy as np
 import cv2
