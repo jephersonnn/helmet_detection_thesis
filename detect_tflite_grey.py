@@ -7,6 +7,9 @@ import numpy as np
 import cv2
 import time as t
 
+print(tf.__version__)
+print(cv2.__version__)
+
 face_detector=cv2.CascadeClassifier("haar/haarcascade_frontalface_default.xml")
 model_path = '//Users/jeph/Dev/Python/Helmet_Detection/Models/model9-1.tflite'
 # model_path = '//Users/jeph/Dev/Python/Helmet_Detection/Models/good trial_model Mar-10-2023 13_35_47.tflite'
@@ -71,7 +74,7 @@ while cap.isOpened():
 
     #frame = cv2.convertScaleAbs(frame, alpha=(np.random.rand()), beta=(np.random.rand()))
     input_frame = cv2.resize(frame, (161, 241))
-
+    print(input_frame.shape)
     input_data = tf.keras.utils.img_to_array(input_frame)
     input_data = tf.expand_dims(input_data, 0)
 
@@ -80,7 +83,7 @@ while cap.isOpened():
 
     #Run Face Detection
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-    results_def = face_detector.detectMultiScale(input_frame, 1.3, 1)
+    results_def = face_detector.detectMultiScale(gray, 1.3, 1)
 
     # Postprocess the output.
     class_names = ['helmet-off', 'helmet-on']
@@ -194,7 +197,7 @@ while cap.isOpened():
     print("helmet off time: " + str(etime_hOff))
     print("detected time: " + str(etime_dface))
     print("Face Frames: " + str(face_frames))
-    print("Helmet Off frames" + str(hOff_frames))
+    print("Helmet Off frames: " + str(hOff_frames))
 
     # Exit if the user presses the "q" key.
     if cv2.waitKey(1) & 0xFF == ord('q'):
