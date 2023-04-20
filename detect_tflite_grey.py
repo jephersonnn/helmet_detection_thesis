@@ -11,7 +11,7 @@ print(tf.__version__)
 print(cv2.__version__)
 
 face_detector=cv2.CascadeClassifier("haar/haarcascade_frontalface_default.xml")
-model_path = '//Users/jeph/Dev/Python/Helmet_Detection/Models/model9-1.tflite'
+model_path = '//Users/jeph/Dev/Python/Helmet_Detection/Models/model9-2.tflite'
 # model_path = '//Users/jeph/Dev/Python/Helmet_Detection/Models/good trial_model Mar-10-2023 13_35_47.tflite'
 interpreter = tf.lite.Interpreter(model_path=model_path)
 
@@ -73,25 +73,24 @@ while cap.isOpened():
     # Preprocess the frame.
 
     #frame = cv2.convertScaleAbs(frame, alpha=(np.random.rand()), beta=(np.random.rand()))
-    input_frame = cv2.resize(frame, (161, 241))
-    print(input_frame.shape)
-    input_data = tf.keras.utils.img_to_array(input_frame)
+    input_frame = cv2.resize(frame, (241, 161), fx=0.1, fy=0) #model9
+    #input_frame = cv2.resize(frame, (181, 102), fx=1, fy=1)  #model11
+    gray = cv2.cvtColor(input_frame, cv2.COLOR_BGR2GRAY)
+    input_data = tf.keras.utils.img_to_array(gray)
     input_data = tf.expand_dims(input_data, 0)
 
     # Run inference on the TFLite model.
     detect = interpreter.get_signature_runner('serving_default')
 
     #Run Face Detection
-    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-    results_def = face_detector.detectMultiScale(gray, 1.3, 1)
+    # gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+    results_def = face_detector.detectMultiScale(gray, 1.25, 2)
 
     # Postprocess the output.
     class_names = ['helmet-off', 'helmet-on']
-    prediction = detect(sequential_15_input=input_data)['outputs']
+    prediction = detect(sequential_1_input=input_data)['outputs']
     score = tf.nn.softmax(prediction)
     status = class_names[np.argmax(score)]
-
-    print(status)
     #confidence = 100 * np.max(score)
 
     try: #face not detected
@@ -169,9 +168,6 @@ while cap.isOpened():
         hOff_frames = 0
         etime_hOff = 0
 
-    # if helmet_off_frames > min_frames and etime_hOff >= helmet_off_timeout and warning_trigger == True and bz_warn_trigger == False and bz_triggered == False:
-    #     bz_warn_trigger = True
-
     # this is to make sure that bz_warn does not run repeatedly.
     if bz_warn_trigger == True and warning_trigger == True and bz_triggered == False:
         display_message = "Please wear your helmet"
@@ -179,24 +175,23 @@ while cap.isOpened():
         warning_trigger = False
         bz_warn_trigger = False
         bz_triggered = True
-        #insert warnings
-        print("Beep beep")
 
     # Display the frame with the predicted class label.
     cv2.putText(frame, display_message, (10, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, color, 2)
     #cv2.putText(frame, status + " " + str(confidence), (10, 90), cv2.FONT_HERSHEY_SIMPLEX, 1, color, 2)
     cv2.putText(frame, str(fps_ave) + "fps", (10, 140), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 1)
 
-    cv2.imshow("Frame", frame)
+    cv2.imshow("Frame", gray)
 
     print("---")
-    print("Warning: ", bz_triggered)
-    print("Detected: " + status)
-    print("Face", face_detected)
-    print("helmet on time: " + str(etime_hOn))
-    print("helmet off time: " + str(etime_hOff))
-    print("detected time: " + str(etime_dface))
-    print("Face Frames: " + str(face_frames))
+    print("FPS..............: " + str(fps_ave) + "fps")
+    print("Helmet Status....: " + status)
+    print("Warning Status...: ", bz_triggered)
+    print("Face Detected....: ", face_detected)
+    print("H-On  time.......: " + str(etime_hOn))
+    print("H-Off time.......: " + str(etime_hOff))
+    print("Face Time........: " + str(etime_dface))
+    print("Face Frames......: " + str(face_frames))
     print("Helmet Off frames: " + str(hOff_frames))
 
     # Exit if the user presses the "q" key.

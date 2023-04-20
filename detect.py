@@ -21,7 +21,7 @@ print(tf.__version__)
 print(cv2.__version__)
 
 face_detector = cv2.CascadeClassifier("/home/pi/helmet_detection_thesis/haar/haarcascade_frontalface_default.xml")
-model_path = '/home/pi/helmet_detection_thesis/Models/model9-1.tflite'
+model_path = '/home/pi/helmet_detection_thesis/Models/model9-2.tflite'
 # model_path = '//Users/jeph/Dev/Python/Helmet_Detection/Models/good trial_model Mar-10-2023 13_35_47.tflite'
 interpreter = Interpreter(model_path=model_path)
 
@@ -37,8 +37,8 @@ fps_t = 0
 fps_ave = 0
 fps = 0
 
-min_frames = 10
-min_hOff_frames = 20
+min_frames = 7
+min_hOff_frames = 10
 face_frames = 0
 hOff_frames = 0
 
@@ -85,8 +85,11 @@ while cap.isOpened():
     # Preprocess the frame.
 
     # frame = cv2.convertScaleAbs(frame, alpha=(np.random.rand()), beta=(np.random.rand()))
-    input_frame = cv2.resize(frame, (161, 241))
-    print(input_frame.shape)
+
+    x, y, w, h = 40, 100, 680, 480
+    frame = frame[y:h, x:w]
+    input_frame = cv2.resize(frame, (241, 161))  # model9
+    #     input_frame = cv2.resize(frame, (181, 102)) #model11
     input_frame = cv2.cvtColor(input_frame, cv2.COLOR_BGR2GRAY)
     input_data = img_to_array(input_frame)
     input_data = tf.expand_dims(input_data, 0)
@@ -98,7 +101,7 @@ while cap.isOpened():
     detect = interpreter.get_signature_runner('serving_default')
     # Postprocess the output.
     class_names = ['helmet-off', 'helmet-on']
-    prediction = detect(sequential_15_input=input_data)['outputs']
+    prediction = detect(sequential_1_input=input_data)['outputs']
     score = tf.nn.softmax(prediction)
     status = class_names[np.argmax(score)]
     confidence = 100 * np.max(score)
@@ -141,7 +144,7 @@ while cap.isOpened():
             hOff_frames = 0
 
             if face_detected:
-                display_message = "False Positive"
+                display_message = "Helmet Off"
 
             else:
                 display_message = "Helmet On"
@@ -199,20 +202,23 @@ while cap.isOpened():
     cv2.putText(frame, status + " " + str(confidence), (10, 90), cv2.FONT_HERSHEY_SIMPLEX, 1, color, 2)
     cv2.putText(frame, str(fps_ave) + "fps", (10, 140), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 1)
 
-    cv2.imshow("Frame", frame)
+    cv2.imshow("Frame", input_frame)
 
     print("---")
-    print("Warning: ", bz_triggered)
-    print("Detected: " + status)
-    print("Face", face_detected)
-    print("helmet on time: " + str(etime_hOn))
-    print("helmet off time: " + str(etime_hOff))
-    print("detected time: " + str(etime_dface))
-    print("Face Frames: " + str(face_frames))
-    print("Helmet Off frames" + str(hOff_frames))
+    print("FPS:..........: " + str(fps_ave))
+    print("Warning:..:...: ", bz_triggered)
+    print("Detected......: " + status)
+    print("Face..........: ", face_detected)
+    print("H-On time.....: " + str(etime_hOn))
+    print("H-Off time....: " + str(etime_hOff))
+    print("Face Detected.: " + str(etime_dface))
+    print("Face Frames...: " + str(face_frames))
+    print("H-Off frames..: " + str(hOff_frames))
 
     # Exit if the user presses the "q" key.
     if cv2.waitKey(1) & 0xFF == ord('q'):
+        goodbye_led()
+        goodbye()
         break
 
 # Release the webcam and close all windows.

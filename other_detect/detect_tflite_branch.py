@@ -70,7 +70,7 @@ while cap.isOpened():
     # Preprocess the frame.
 
     #frame = cv2.convertScaleAbs(frame, alpha=(np.random.rand()), beta=(np.random.rand()))
-    input_frame = cv2.resize(frame, (161, 241))
+    input_frame = cv2.resize(frame, (241, 161))
     input_data = tf.keras.utils.img_to_array(input_frame)
     input_data = tf.expand_dims(input_data, 0)
 

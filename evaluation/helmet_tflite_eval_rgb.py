@@ -4,8 +4,7 @@ import pathlib
 import tensorflow as tf
 import numpy as np
 
-#model_path = '//Users/jeph/Dev/Python/Helmet_Detection/Models/model9-2.tflite' #sequential_1
-model_path = '//Users/jeph/Dev/Python/Helmet_Detection/Models/model11-3.tflite' #sequential_1
+model_path = '//Users/jeph/Dev/Python/Helmet_Detection/Models/model10-1.tflite'
 interpreter = tf.lite.Interpreter(model_path=model_path)
 face_detected = False
 face_detected_alt = False
@@ -13,8 +12,8 @@ face_detected_alt = False
 face_detector=cv2.CascadeClassifier('/Users/jeph/Dev/Python/Helmet_Detection/haar/haarcascade_frontalface_default.xml')
 face_detector_alt=cv2.CascadeClassifier('/Users/jeph/Dev/Python/Helmet_Detection/haar/haarcascade_frontalface_alt_tree.xml')
 #helmet_data_directory = "/Users/jeph/Downloads/Documents/helmet-data/helmet_data_grey"
-helmet_data_directory = "/Users/jeph/Downloads/Documents/helmet-data/helmet_data_main"
-#helmet_data_directory = "/Users/jeph/Downloads/Documents/helmet-data/large"
+#helmet_data_directory = "/Users/jeph/Downloads/Documents/helmet-data/helmet_data_main"
+helmet_data_directory = "/Users/jeph/Downloads/Documents/helmet-data/large"
 #helmet_data_directory = "/Users/jeph/Dev/Python/Helmet_Detection/test"
 helmet_on_directory = helmet_data_directory + "/helmet-on/"
 helmet_off_directory = helmet_data_directory + "/helmet-off/"
@@ -22,9 +21,6 @@ print(helmet_off_directory)
 
 print("Evaluating...")
 
-img = cv2.imread()
-img = cv2.resize(img, (181, 102), fx=0.2, fy=0.2)  # model11
-cv2.imshow("Frame", img)
 
 def run_eval(helmet_dir):
     true_count = 0
@@ -37,13 +33,12 @@ def run_eval(helmet_dir):
     for hOn in helmet_data:
 
         img = cv2.imread(str(hOn))
-        #img = cv2.resize(img, (241, 161)) #model9
-        img = cv2.resize(img, (181, 102), fx=0.2, fy=0.2) #model11
+        img = cv2.resize(img, (181, 102))
         gray = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
-        input_data = tf.keras.utils.img_to_array(gray)
+        input_data = tf.keras.utils.img_to_array(img)
         input_data = tf.expand_dims(input_data, 0)
-        results_def = face_detector.detectMultiScale(gray, 2, 5)
-        results_def_alt = face_detector_alt.detectMultiScale(gray, 2, 5)
+        results_def = face_detector.detectMultiScale(gray, 1.3, 2)
+        results_def_alt = face_detector_alt.detectMultiScale(gray, 1.3, 2)
 
         try:  # face not detected
             if not results_def:
