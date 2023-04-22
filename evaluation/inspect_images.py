@@ -30,7 +30,7 @@ def run_greyscale(helmet_dir, save_dir):
         print(cdf[int(cutoff)])
         if cdf[int(cutoff)] > 0.3:
             print("The image is underexposed.")
-            # gray = cv2.convertScaleAbs(gray, alpha=alpha, beta=beta)
+            gray2 = cv2.convertScaleAbs(gray, alpha=alpha, beta=beta)
         else:
             print("The image is properly exposed.")
 
@@ -41,7 +41,7 @@ def run_greyscale(helmet_dir, save_dir):
 
         cv2.imshow("Raw", img)
         cv2.imshow("Gray", gray)
-        # cv2.imshow("Gray 2", gray2)
+        cv2.imshow("Gray 2", gray2)
 
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break

@@ -19,9 +19,10 @@ while cap.isOpened():
 
     ret, frame = cap.read()
     #frame = cv2.convertScaleAbs(frame, alpha=(np.random.rand()), beta=(np.random.rand()))
-    x, y, w, h = 250, 100, 1280, 720
+    print(frame.shape)
+    x, y, w, h = 200, 100, 1000, 720
     frame = frame[y:y+h, x:x+w]
-    input_frame = cv2.resize(frame, (241, 161), fx=0.1, fy=0) #model9
+    input_frame = cv2.resize(frame, (241, 161)) #model9
     #input_frame = cv2.resize(frame, (181, 102), fx=1, fy=1)  #model11
     gray = cv2.cvtColor(input_frame, cv2.COLOR_BGR2GRAY)
     input_data = tf.keras.utils.img_to_array(gray)
