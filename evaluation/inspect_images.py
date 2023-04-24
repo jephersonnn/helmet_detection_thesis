@@ -3,12 +3,22 @@ import numpy as np
 from os.path import join
 import pathlib
 
-helmet_on_directory = "/Users/jeph/Downloads/Documents/helmet-data/helmet_data_grey3/helmet-on"
-helmet_off_directory = "/Users/jeph/Downloads/Documents/helmet-data/helmet_data_grey3/helmet-off"
+# helmet_on_directory = "/Users/jeph/Downloads/Documents/helmet-data/helmet_data_grey3/helmet-on"
+# helmet_off_directory = "/Users/jeph/Downloads/Documents/helmet-data/helmet_data_grey3/helmet-off"
+# helmet_on_directory = "/Users/jeph/Downloads/Documents/helmet-data/helmet_toAdd/helmet_on"
+# helmet_off_directory = "/Users/jeph/Downloads/Documents/helmet-data/helmet_toAdd/helmet_off"
+# helmet_data_directory = "/Users/jeph/Downloads/Documents/helmet-data/helmet_data_main"
+# helmet_data_directory = "/Users/jeph/Downloads/Documents/helmet-data/helmet_data_main"
 # helmet_on_directory = "/Users/jeph/Downloads/Documents/helmet-data/helmet_data/helmet-on"
 # helmet_off_directory = "/Users/jeph/Downloads/Documents/helmet-data/helmet_data/helmet-off"
 # helmet_on_directory = "/Users/jeph/Downloads/Documents/helmet-data/validation/evaluation_ds_normal copy/helmet-on"
 # helmet_off_directory = "/Users/jeph/Downloads/Documents/helmet-data/validation/evaluation_ds_normal copy/helmet-off"
+
+helmet_data_directory = "/Users/jeph/Downloads/Documents/helmet-data/helmet-eval"
+# helmet_data_directory = "/Users/jeph/Downloads/Documents/helmet-data/large"
+#helmet_data_directory = "/Users/jeph/Dev/Python/Helmet_Detection/test"
+helmet_on_directory = helmet_data_directory + "/helmet-on/"
+helmet_off_directory = helmet_data_directory + "/helmet-off/"
 mainSaveDir = "/Users/jeph/Downloads/Documents/helmet-data/helmet_data_grey"
 
 alpha=1.0 #contrast 1.0-3.0
@@ -28,14 +38,12 @@ def run_greyscale(helmet_dir, save_dir):
         cdf = hist_norm.cumsum()
         cutoff = np.percentile(gray, 0.5)
         print(cdf[int(cutoff)])
-        if cdf[int(cutoff)] > 0.3:
+        if cdf[int(cutoff)] > 0.1:
             print("The image is underexposed.")
             gray2 = cv2.convertScaleAbs(gray, alpha=alpha, beta=beta)
         else:
             print("The image is properly exposed.")
 
-        save = join(save_dir,hOn)
-        cv2.imwrite(save, gray)
         processed += 1
         print("Processed " + str(processed) + " images")
 
@@ -43,7 +51,7 @@ def run_greyscale(helmet_dir, save_dir):
         cv2.imshow("Gray", gray)
         cv2.imshow("Gray 2", gray2)
 
-        if cv2.waitKey(1) & 0xFF == ord('q'):
+        if cv2.waitKey(0) & 0xFF == ord('q'):
             break
 
 

@@ -3,8 +3,10 @@ import numpy as np
 from os.path import join
 import pathlib
 
-helmet_on_directory = "/Users/jeph/Downloads/Documents/helmet-data/helmet_data_grey3/helmet-on"
-helmet_off_directory = "/Users/jeph/Downloads/Documents/helmet-data/helmet_data_grey3/helmet-off"
+# helmet_on_directory = "/Users/jeph/Downloads/Documents/helmet-data/helmet_data_grey3/helmet-on"
+# helmet_off_directory = "/Users/jeph/Downloads/Documents/helmet-data/helmet_data_grey3/helmet-off"
+helmet_on_directory = "/Users/jeph/Downloads/Documents/helmet-data/helmet_toAdd/helmet_on"
+helmet_off_directory = "/Users/jeph/Downloads/Documents/helmet-data/helmet_toAdd/helmet_off"
 # helmet_on_directory = "/Users/jeph/Downloads/Documents/helmet-data/helmet_data/helmet-on"
 # helmet_off_directory = "/Users/jeph/Downloads/Documents/helmet-data/helmet_data/helmet-off"
 # helmet_on_directory = "/Users/jeph/Downloads/Documents/helmet-data/validation/evaluation_ds_normal copy/helmet-on"
@@ -28,9 +30,9 @@ def run_greyscale(helmet_dir, save_dir):
         cdf = hist_norm.cumsum()
         cutoff = np.percentile(gray, 0.5)
         print(cdf[int(cutoff)])
-        if cdf[int(cutoff)] > 0.3:
+        if cdf[int(cutoff)] > 0.1:
             print("The image is underexposed.")
-            # gray = cv2.convertScaleAbs(gray, alpha=alpha, beta=beta)
+            gray = cv2.convertScaleAbs(gray, alpha=alpha, beta=beta)
         else:
             print("The image is properly exposed.")
 
